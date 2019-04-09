@@ -1,0 +1,10 @@
+{
+  "host": "localhost:3000",
+  "connection": "keep-alive",
+  "upgrade-insecure-requests": "1",
+  "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36",
+  "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+  "accept-encoding": "gzip, deflate, br",
+  "accept-language": "zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+  "cookie": "Webstorm-f313a2b=d56090d6-1f48-45a1-8eab-1a4cd3f6eecb; Phpstorm-ad395f4f=ea19b116-c625-4591-b6b7-9164ea204892"
+}
