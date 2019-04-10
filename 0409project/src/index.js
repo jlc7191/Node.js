@@ -2,11 +2,27 @@ var express = require('express');
 var exphbs = require('express-handlebars');
 var url = require('url');
 var bodyParser = require('body-parser');
+var cors = require('cors');
+var multer = require('multer');
+
 
 // 開啟上面那個玩意
 var app = express();
+
+
 // 靜態資料夾
 app.use(express.static('public'));
+app.use(cors());
+
+
+// 設定multer
+var upload = multer({dest:'tmp_uploads'});
+
+
+// 抓到進來的post跟json
+app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.json());
+
 
 // 設定handlebars的引擎
 app.engine('hbs', exphbs({
@@ -54,16 +70,21 @@ app.get('/sales2', (req, res) => {
 
 // queryString
 app.get('/try_qs', (req, res)=>{
-
     console.log(req.url);
-
     const urlParts = url.parse(req.url, true);
-
     console.log(urlParts);
-
     res.render('/try_qs', {
         urlParts: urlParts
     })
+});
+
+
+// 回應接到的post或json
+app.post('/post-echo',(req,res)=>{
+    res.json(req.body);
+});
+app.post('/post-echo2',(req,res)=>{
+    res.send(req.body.name)
 });
 
 
