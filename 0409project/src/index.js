@@ -4,6 +4,8 @@ var url = require('url');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var multer = require('multer');
+var fs = require('fs');
+const uuidv4 = require('uuid/v4')
 
 
 // 開啟上面那個玩意
@@ -16,11 +18,11 @@ app.use(cors());
 
 
 // 設定multer
-var upload = multer({dest:'tmp_uploads'});
+var upload = multer({ dest: 'tmp_uploads' });
 
 
 // 抓到進來的post跟json
-app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 
@@ -41,7 +43,6 @@ app.set('view engine', 'hbs');
 // 路由1 routes1
 app.get('/', (req, res) => {
     const sales = require('../data/sales.json')
-
     res.render('home', {
         name: sales[0].name,
     });
@@ -69,7 +70,7 @@ app.get('/sales2', (req, res) => {
 
 
 // queryString
-app.get('/try_qs', (req, res)=>{
+app.get('/try_qs', (req, res) => {
     console.log(req.url);
     const urlParts = url.parse(req.url, true);
     console.log(urlParts);
@@ -80,18 +81,18 @@ app.get('/try_qs', (req, res)=>{
 
 
 // 回應接到的post或json
-app.post('/post-echo',(req,res)=>{
+app.post('/post-echo', (req, res) => {
     res.json(req.body);
 });
-app.post('/post-echo2',(req,res)=>{
+app.post('/post-echo2', (req, res) => {
     res.send(req.body.name)
 });
 
 
 // body-parser
-const urlencodedParser = bodyParser.urlencoded({extended : false});
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.post('/bparder',urlencodedParser,(req,res)=>{
+app.post('/bparder', urlencodedParser, (req, res) => {
     res.json(req.body);
 });
 
@@ -100,6 +101,87 @@ app.post('/bparder',urlencodedParser,(req,res)=>{
 // (順序很重要!!   這邊的abc.html抓不到,  因為上面資料夾裡面有abc.html  而它在上它優先)
 app.get('/abc.html', function (req, res) {
     res.send('Ya Hey noChinese 沒有中文~~會亂碼');
+});
+
+
+app.get('/try-upload', (req, res) => {
+    res.render('try-upload');
+});
+
+
+app.post('/try-upload', upload.single('avatar'), (req, res) => {
+    console.log(req.file);
+    let ext = '';
+    let fname = uuidv4();
+    if (req.file && req.file.originalname) {
+        switch (req.file.mimetype) {
+            case 'image/png':
+                ext = '.png';
+            case 'image/jpeg':
+                if (!ext) {
+                    ext = '.jpg';
+                }
+                fs.createReadStream(req.file.path)
+                    .pipe(fs.createWriteStream(__dirname + './../public/img/' + fname + ext));
+                res.json({
+                    success: true,
+                    file: '/img/' + fname + ext,
+                    name: req.body.name
+                });
+                return;
+        }
+    }
+    res.json({
+        success: false,
+        file: '',
+        name: req.body.name
+    });
+    // 判斷是否有檔案
+    // if (req.file && req.file.originalname) {
+    //     // 判斷是否附檔名為圖檔
+    //     if (/\.(jpg|jpeg|png)$/i.test(req.file.originalname)) {
+    //         fs.createReadStream(req.file.path)
+    //             .pipe(
+    //                 fs.createWriteStream(__dirname + './../public/img/' + req.file.originalname)
+    //             );
+    //     }
+    // }
+    // 成功後傳送ok訊息
+    // res.send('ok');
+});
+
+
+app.post('/upload-single', upload.single('filefield'), (req, res) => {
+    let ext = '';
+    let fname = uuidv4();
+    const result = {
+        success: false,
+        info: '',
+        file: ''
+    }
+    if (req.file && req.file.originalname) {
+        switch (req.file.mimetype) {
+            case 'image/png':
+                ext = '.png';
+            case 'image/jpeg':
+                if (!ext) {
+                    ext = '.jpg';
+                }
+
+                fs.createReadStream(req.file.path)
+                    .pipe(fs.createWriteStream(__dirname + './../public/img/' + fname + ext));
+                res.json({
+                    success: true,
+                    file: '/img/' + fname + ext,
+                });
+                return;
+            default:
+                result.info = '檔案格式不符';
+        }
+    } else {
+        result.info = '沒有選擇檔案';
+    }
+    res.json(result);
 });
 
 
